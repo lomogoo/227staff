@@ -92,6 +92,26 @@
             color: #cccccc;
         }
 
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #0a0a0a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 400;
+            font-family: inherit;
+        }
+
+        .input-group select:focus {
+            outline: none;
+            border-color: #0a0a0a;
+            box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.05);
+        }
+
         .result-card {
             background: #f5f5f5;
             border: 1px solid #e5e5e5;
@@ -189,6 +209,52 @@
             font-size: 16px;
             font-weight: 600;
             letter-spacing: -0.3px;
+        }
+
+        .reference-info {
+            margin-top: 20px;
+            padding: 16px;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .reference-info h4 {
+            font-size: 11px;
+            color: #999999;
+            margin-bottom: 12px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .reference-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .reference-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .reference-card .label {
+            font-size: 9px;
+            color: #999999;
+            margin-bottom: 4px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+
+        .reference-card .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0a0a0a;
         }
 
         .button {
@@ -350,6 +416,43 @@
                 <div class="input-group">
                     <label for="targetSalesAmount">売上目標（円）※オプション</label>
                     <input type="number" id="targetSalesAmount" placeholder="50000" min="0" oninput="calculate()">
+                </div>
+
+                <!-- オプション入力セクション -->
+                <div class="options-section" style="border-top: 1px solid #e5e5e5; padding-top: 24px; margin-top: 24px;">
+                    <h4 style="font-size: 13px; color: #999999; margin-bottom: 16px; font-weight: 500; text-transform: uppercase;">追加情報（オプション）</h4>
+
+                    <div class="input-group">
+                        <label for="weather">天気</label>
+                        <select id="weather" onchange="calculate()">
+                            <option value="">選択してください</option>
+                            <option value="☀️">☀️ 晴れ</option>
+                            <option value="⛅">⛅ 曇り</option>
+                            <option value="🌧️">🌧️ 雨</option>
+                            <option value="❄️">❄️ 雪</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="temperature">気温（℃）</label>
+                        <input type="number" id="temperature" placeholder="25" min="-30" max="50" step="0.1" oninput="calculate()">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="locationCategory">販売場所（大分類）</label>
+                        <select id="locationCategory" onchange="updateLocationSubcategory(); calculate()">
+                            <option value="">選択してください</option>
+                            <option value="event">イベント</option>
+                            <option value="spot">スポット</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="locationSubcategory">販売場所（小分類）</label>
+                        <select id="locationSubcategory" onchange="calculate()">
+                            <option value="">先に大分類を選択してください</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div id="calculationResult"></div>
@@ -547,6 +650,35 @@
             localStorage.setItem('currySettings', JSON.stringify(settings));
         }
 
+        // 販売場所の小分類を更新
+        function updateLocationSubcategory() {
+            const category = document.getElementById('locationCategory').value;
+            const subcategorySelect = document.getElementById('locationSubcategory');
+
+            let options = [];
+            if (category === 'event') {
+                options = [
+                    { value: '', text: '選択してください' },
+                    { value: 'festival', text: 'フェスティバル' },
+                    { value: 'market', text: 'マーケット' },
+                    { value: 'exhibition', text: '展示会' },
+                    { value: 'conference', text: 'カンファレンス' }
+                ];
+            } else if (category === 'spot') {
+                options = [
+                    { value: '', text: '選択してください' },
+                    { value: 'station', text: '駅前' },
+                    { value: 'park', text: '公園' },
+                    { value: 'shopping', text: '商業施設' },
+                    { value: 'street', text: '繁華街' }
+                ];
+            }
+
+            subcategorySelect.innerHTML = options
+                .map(opt => `<option value="${opt.value}">${opt.text}</option>`)
+                .join('');
+        }
+
         // 損益分岐点計算
         function calculate() {
             const workHours = parseFloat(document.getElementById('workHours').value) || 0;
@@ -564,23 +696,56 @@
             const breakEvenSales = breakEvenCups * settings.curryPrice;
 
             // 売上目標がある場合の計算
-            let targetResultHTML = '';
+            let targetCupsHTML = '';
+            let targetSalesGrossProfit = 0;
             if (targetSalesAmount > 0) {
-                const targetGrossProfit = targetSalesAmount * (1 - settings.costRate / 100);
-                const requiredGrossProfit = laborCost + targetGrossProfit;
+                targetSalesGrossProfit = targetSalesAmount * (1 - settings.costRate / 100);
+                const requiredGrossProfit = laborCost + targetSalesGrossProfit;
                 const targetCups = Math.ceil(requiredGrossProfit / profitPerCup);
 
-                targetResultHTML = `
-                    <div class="calculation-section">
-                        <h3>売上目標の分析</h3>
-                        <div class="info-grid">
-                            <div class="info-card">
-                                <div class="label">目標粗利額</div>
-                                <div class="value">¥${targetGrossProfit.toLocaleString()}</div>
+                targetCupsHTML = `
+                    <div class="result-card" style="margin-top: 16px;">
+                        <h3>目標売上達成に必要な杯数</h3>
+                        <div class="value">${targetCups}<span class="unit">杯</span></div>
+                        <div class="subtitle">売上 ¥${targetSalesAmount.toLocaleString()}</div>
+                    </div>
+                `;
+            }
+
+            // 参考情報セクション
+            let referenceHTML = '';
+            if (targetSalesAmount > 0) {
+                referenceHTML = `
+                    <div class="reference-info">
+                        <h4>参考情報</h4>
+                        <div class="reference-grid">
+                            <div class="reference-card">
+                                <div class="label">人件費</div>
+                                <div class="value">¥${laborCost.toLocaleString()}</div>
                             </div>
-                            <div class="info-card">
-                                <div class="label">必要杯数</div>
-                                <div class="value">${targetCups}<span class="unit">杯</span></div>
+                            <div class="reference-card">
+                                <div class="label">1杯あたり粗利</div>
+                                <div class="value">¥${profitPerCup}</div>
+                            </div>
+                            <div class="reference-card">
+                                <div class="label">目標売上での粗利</div>
+                                <div class="value">¥${targetSalesGrossProfit.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                referenceHTML = `
+                    <div class="reference-info">
+                        <h4>参考情報</h4>
+                        <div class="reference-grid">
+                            <div class="reference-card">
+                                <div class="label">人件費</div>
+                                <div class="value">¥${laborCost.toLocaleString()}</div>
+                            </div>
+                            <div class="reference-card">
+                                <div class="label">1杯あたり粗利</div>
+                                <div class="value">¥${profitPerCup}</div>
                             </div>
                         </div>
                     </div>
@@ -595,18 +760,9 @@
                     <div class="subtitle">売上 ¥${breakEvenSales.toLocaleString()}</div>
                 </div>
 
-                <div class="info-grid">
-                    <div class="info-card">
-                        <div class="label">人件費</div>
-                        <div class="value">¥${laborCost.toLocaleString()}</div>
-                    </div>
-                    <div class="info-card">
-                        <div class="label">1杯あたり粗利</div>
-                        <div class="value">¥${profitPerCup}</div>
-                    </div>
-                </div>
+                ${targetCupsHTML}
 
-                ${targetResultHTML}
+                ${referenceHTML}
             `;
         }
 
