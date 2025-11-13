@@ -758,6 +758,16 @@
                     <h3>損益分岐点（赤字回避）</h3>
                     <div class="value">${breakEvenCups}<span class="unit">杯</span></div>
                     <div class="subtitle">売上 ¥${breakEvenSales.toLocaleString()}</div>
+                    <div class="info-grid" style="margin-top: 16px;">
+                        <div class="info-card">
+                            <div class="label">人件費</div>
+                            <div class="value">¥${laborCost.toLocaleString()}</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="label">粗利</div>
+                            <div class="value">¥${(breakEvenCups * profitPerCup).toLocaleString()}</div>
+                        </div>
+                    </div>
                 </div>
 
                 ${targetCupsHTML}
