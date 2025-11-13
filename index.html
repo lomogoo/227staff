@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>カレー損益分岐点計算</title>
+    <title>Route 227s' Cafe Staff App</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -13,39 +13,18 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #ffffff;
+            color: #0a0a0a;
             min-height: 100vh;
             padding: 0;
             overflow-x: hidden;
-        }
-
-        /* 背景グラデーションアニメーション */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(255, 77, 77, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 90%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
-            animation: gradientShift 20s ease infinite;
-            z-index: 0;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            50% { transform: translate(-10%, -10%) rotate(180deg); }
         }
 
         .container {
             max-width: 520px;
             margin: 0 auto;
             position: relative;
-            z-index: 1;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -54,25 +33,20 @@
         .header {
             padding: 60px 24px 40px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid #e5e5e5;
         }
 
         .header h1 {
             font-size: 32px;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: -0.5px;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #0a0a0a;
             user-select: none;
         }
 
         .header p {
-            color: rgba(255, 255, 255, 0.5);
+            color: #999999;
             font-size: 14px;
             font-weight: 400;
             letter-spacing: 0.3px;
@@ -90,82 +64,76 @@
         .input-group label {
             display: block;
             margin-bottom: 10px;
-            color: rgba(255, 255, 255, 0.7);
+            color: #666666;
             font-weight: 500;
             font-size: 13px;
             letter-spacing: 0.3px;
-            text-transform: uppercase;
         }
 
         .input-group input {
             width: 100%;
-            padding: 16px 18px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            font-size: 17px;
-            color: #ffffff;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 500;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #0a0a0a;
+            transition: all 0.2s ease;
+            font-weight: 400;
         }
 
         .input-group input:focus {
             outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+            border-color: #0a0a0a;
+            box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.05);
         }
 
         .input-group input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: #cccccc;
         }
 
         .result-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 32px;
-            border-radius: 20px;
+            background: #f5f5f5;
+            border: 1px solid #e5e5e5;
+            padding: 28px;
+            border-radius: 12px;
             margin: 24px 0;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
         }
 
         .result-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
+            background: #fafafa;
+            border-color: #d9d9d9;
         }
 
         .result-card h3 {
-            font-size: 13px;
+            font-size: 12px;
             margin-bottom: 16px;
-            opacity: 0.6;
+            color: #999999;
             font-weight: 500;
-            letter-spacing: 1px;
+            letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
         .result-card .value {
             font-size: 56px;
-            font-weight: 700;
+            font-weight: 600;
             margin: 16px 0;
-            letter-spacing: -2px;
-            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            letter-spacing: -1px;
+            color: #0a0a0a;
         }
 
         .result-card .unit {
             font-size: 20px;
-            opacity: 0.7;
+            color: #666666;
             font-weight: 500;
             margin-left: 4px;
         }
 
         .result-card .subtitle {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 15px;
+            color: #999999;
+            font-size: 14px;
             margin-top: 12px;
             font-weight: 400;
         }
@@ -178,117 +146,83 @@
         }
 
         .info-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 20px;
-            border-radius: 16px;
+            background: #f5f5f5;
+            border: 1px solid #e5e5e5;
+            padding: 18px;
+            border-radius: 12px;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
         }
 
         .info-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: #fafafa;
+            border-color: #d9d9d9;
         }
 
         .info-card .label {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
+            color: #999999;
             margin-bottom: 8px;
             font-weight: 500;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
         .info-card .value {
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.5px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a0a0a;
+            letter-spacing: -0.3px;
         }
 
-        .progress-section {
+        .calculation-section {
             margin-top: 40px;
-            padding: 28px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
+            padding: 24px;
+            background: #f5f5f5;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
         }
 
-        .progress-section h3 {
+        .calculation-section h3 {
             margin-bottom: 24px;
-            color: #ffffff;
-            font-size: 18px;
+            color: #0a0a0a;
+            font-size: 16px;
             font-weight: 600;
             letter-spacing: -0.3px;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 12px;
-        }
-
-        .progress-fill::after {
-            content: attr(data-percent);
-            position: absolute;
-            right: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 0.3px;
-        }
-
         .button {
             width: 100%;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #0a0a0a;
             color: white;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             margin-top: 16px;
             letter-spacing: 0.3px;
         }
 
         .button:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
+            background: #333333;
+            border-color: #333333;
         }
 
         .button:active {
-            transform: translateY(0);
+            background: #1a1a1a;
         }
 
         .alert {
-            padding: 16px 20px;
-            border-radius: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            font-size: 14px;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            background: #f0f0f0;
+            border: 1px solid #e5e5e5;
+            color: #666666;
         }
 
         /* 管理者モーダル */
@@ -299,10 +233,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.4);
             z-index: 1000;
-            animation: fadeIn 0.3s;
+            animation: fadeIn 0.2s;
         }
 
         .admin-modal.active {
@@ -312,19 +245,19 @@
         }
 
         .admin-content {
-            background: rgba(20, 20, 20, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px;
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 32px;
             max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideUp 0.3s ease;
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -332,22 +265,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e5;
         }
 
         .admin-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #0a0a0a;
         }
 
         .close-btn {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 28px;
+            color: #999999;
+            font-size: 24px;
             cursor: pointer;
             padding: 0;
             width: 32px;
@@ -355,20 +289,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            border-radius: 6px;
             transition: all 0.2s;
         }
 
         .close-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+            background: #f5f5f5;
+            color: #0a0a0a;
         }
 
         @media (max-width: 600px) {
-            body {
-                padding: 0;
-            }
-            
             .header {
                 padding: 40px 20px 32px;
             }
@@ -387,26 +317,8 @@
 
             .admin-content {
                 width: 95%;
-                padding: 32px 24px;
+                padding: 24px 20px;
             }
-        }
-
-        /* スクロールバーのスタイリング */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
         }
 
         /* 数値入力の矢印を非表示 */
@@ -424,50 +336,23 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 id="appTitle">カレー損益計算</h1>
-            <p>本日の損益分岐点を簡単計算</p>
+            <h1 id="appTitle">Route 227s' Cafe Staff App</h1>
+            <p>Daily Break-Even Calculator</p>
         </div>
 
         <div class="content">
-            <!-- 計算画面 -->
-            <div id="calculator">
-            <!-- 計算画面 -->
             <div id="calculator">
                 <div class="input-group">
-                    <label for="workHours">勤務時間</label>
+                    <label for="workHours">勤務時間（時間）</label>
                     <input type="number" id="workHours" placeholder="8" step="0.5" min="0" oninput="calculate()">
                 </div>
 
-                <div id="calculationResult"></div>
-
-                <div class="progress-section" style="display: none;" id="goalSection">
-                    <h3>目標と実績</h3>
-                    
-                    <div class="input-group">
-                        <label for="targetSales">目標売上</label>
-                        <input type="number" id="targetSales" placeholder="50000" min="0" oninput="updateProgress()">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="actualSales">実績売上</label>
-                        <input type="number" id="actualSales" placeholder="現在の売上を入力" min="0" oninput="updateProgress()">
-                    </div>
-
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill" style="width: 0%;" data-percent="0%"></div>
-                    </div>
-
-                    <div class="info-grid">
-                        <div class="info-card">
-                            <div class="label">残り売上</div>
-                            <div class="value" id="remainingSales">-</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="label">残り杯数</div>
-                            <div class="value" id="remainingCups">-</div>
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label for="targetSalesAmount">売上目標（円）※オプション</label>
+                    <input type="number" id="targetSalesAmount" placeholder="50000" min="0" oninput="calculate()">
                 </div>
+
+                <div id="calculationResult"></div>
             </div>
         </div>
     </div>
@@ -476,7 +361,7 @@
     <div class="admin-modal" id="adminModal">
         <div class="admin-content">
             <div class="admin-header">
-                <h2>⚙️ 管理者設定</h2>
+                <h2>管理者設定</h2>
                 <button class="close-btn" onclick="closeAdminModal()">×</button>
             </div>
 
@@ -665,23 +550,47 @@
         // 損益分岐点計算
         function calculate() {
             const workHours = parseFloat(document.getElementById('workHours').value) || 0;
-            
+            const targetSalesAmount = parseFloat(document.getElementById('targetSalesAmount').value) || 0;
+
             if (workHours === 0) {
                 document.getElementById('calculationResult').innerHTML = '';
-                document.getElementById('goalSection').style.display = 'none';
                 return;
             }
 
-            // 計算
+            // 基本計算
             const laborCost = settings.hourlyWage * workHours;
             const profitPerCup = settings.curryPrice - settings.curryCost;
             const breakEvenCups = Math.ceil(laborCost / profitPerCup);
             const breakEvenSales = breakEvenCups * settings.curryPrice;
 
+            // 売上目標がある場合の計算
+            let targetResultHTML = '';
+            if (targetSalesAmount > 0) {
+                const targetGrossProfit = targetSalesAmount * (1 - settings.costRate / 100);
+                const requiredGrossProfit = laborCost + targetGrossProfit;
+                const targetCups = Math.ceil(requiredGrossProfit / profitPerCup);
+
+                targetResultHTML = `
+                    <div class="calculation-section">
+                        <h3>売上目標の分析</h3>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="label">目標粗利額</div>
+                                <div class="value">¥${targetGrossProfit.toLocaleString()}</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="label">必要杯数</div>
+                                <div class="value">${targetCups}<span class="unit">杯</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             // 結果表示
             document.getElementById('calculationResult').innerHTML = `
                 <div class="result-card">
-                    <h3>損益分岐点</h3>
+                    <h3>損益分岐点（赤字回避）</h3>
                     <div class="value">${breakEvenCups}<span class="unit">杯</span></div>
                     <div class="subtitle">売上 ¥${breakEvenSales.toLocaleString()}</div>
                 </div>
@@ -696,28 +605,9 @@
                         <div class="value">¥${profitPerCup}</div>
                     </div>
                 </div>
+
+                ${targetResultHTML}
             `;
-
-            document.getElementById('goalSection').style.display = 'block';
-            updateProgress();
-        }
-
-        // 進捗更新
-        function updateProgress() {
-            const targetSales = parseFloat(document.getElementById('targetSales').value) || 0;
-            const actualSales = parseFloat(document.getElementById('actualSales').value) || 0;
-
-            if (targetSales === 0) return;
-
-            const progress = Math.min((actualSales / targetSales) * 100, 100);
-            const remaining = Math.max(targetSales - actualSales, 0);
-            const remainingCups = Math.ceil(remaining / settings.curryPrice);
-
-            const progressFill = document.getElementById('progressFill');
-            progressFill.style.width = progress + '%';
-            progressFill.setAttribute('data-percent', progress.toFixed(1) + '%');
-            document.getElementById('remainingSales').textContent = '¥' + remaining.toLocaleString();
-            document.getElementById('remainingCups').textContent = remainingCups + '杯';
         }
 
         // モーダル外クリックで閉じる
