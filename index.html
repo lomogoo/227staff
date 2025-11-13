@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カレー損益分岐点計算</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 背景グラデーションアニメーション */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 77, 77, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 90%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+            z-index: 0;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-10%, -10%) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 60px 24px 40px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            user-select: none;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 32px 24px;
+        }
+
+        .input-group {
+            margin-bottom: 28px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 17px;
+            color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 32px;
+            border-radius: 20px;
+            margin: 24px 0;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .result-card h3 {
+            font-size: 13px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .result-card .value {
+            font-size: 56px;
+            font-weight: 700;
+            margin: 16px 0;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-card .unit {
+            font-size: 20px;
+            opacity: 0.7;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .result-card .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            margin-top: 12px;
+            font-weight: 400;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .info-card .label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .info-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .progress-section {
+            margin-top: 40px;
+            padding: 28px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
+
+        .progress-section h3 {
+            margin-bottom: 24px;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+        }
+
+        .progress-fill::after {
+            content: attr(data-percent);
+            position: absolute;
+            right: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 管理者モーダル */
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .admin-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-content {
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+            
+            .header {
+                padding: 40px 20px 32px;
+            }
+
+            .content {
+                padding: 24px 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-card .value {
+                font-size: 48px;
+            }
+
+            .admin-content {
+                width: 95%;
+                padding: 32px 24px;
+            }
+        }
+
+        /* スクロールバーのスタイリング */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 数値入力の矢印を非表示 */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="appTitle">カレー損益計算</h1>
+            <p>本日の損益分岐点を簡単計算</p>
+        </div>
+
+        <div class="content">
+            <!-- 計算画面 -->
+            <div id="calculator">
+            <!-- 計算画面 -->
+            <div id="calculator">
+                <div class="input-group">
+                    <label for="workHours">勤務時間</label>
+                    <input type="number" id="workHours" placeholder="8" step="0.5" min="0" oninput="calculate()">
+                </div>
+
+                <div id="calculationResult"></div>
+
+                <div class="progress-section" style="display: none;" id="goalSection">
+                    <h3>目標と実績</h3>
+                    
+                    <div class="input-group">
+                        <label for="targetSales">目標売上</label>
+                        <input type="number" id="targetSales" placeholder="50000" min="0" oninput="updateProgress()">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="actualSales">実績売上</label>
+                        <input type="number" id="actualSales" placeholder="現在の売上を入力" min="0" oninput="updateProgress()">
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;" data-percent="0%"></div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="label">残り売上</div>
+                            <div class="value" id="remainingSales">-</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="label">残り杯数</div>
+                            <div class="value" id="remainingCups">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理者モーダル -->
+    <div class="admin-modal" id="adminModal">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>⚙️ 管理者設定</h2>
+                <button class="close-btn" onclick="closeAdminModal()">×</button>
+            </div>
+
+            <div class="alert">
+                ここで変更した設定はSupabaseに保存されます
+            </div>
+
+            <div class="input-group">
+                <label for="adminCurryPrice">カレー1杯の販売価格（円）</label>
+                <input type="number" id="adminCurryPrice" placeholder="800" min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="adminCurryCost">カレー1杯の原価（円）</label>
+                <input type="number" id="adminCurryCost" placeholder="250" min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="adminCostRate">原価率（%）</label>
+                <input type="number" id="adminCostRate" placeholder="30" min="0" max="100" step="0.1">
+            </div>
+
+            <div class="input-group">
+                <label for="adminHourlyWage">時給（円）</label>
+                <input type="number" id="adminHourlyWage" placeholder="1500" min="0">
+            </div>
+
+            <button class="button" onclick="saveAdminSettings()">設定を保存</button>
+
+            <div id="adminSaveMessage" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase設定（ここに実際の値を入力してください）
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        let supabase;
+        let settings = {
+            curryPrice: 800,
+            curryCost: 250,
+            costRate: 31.25,
+            hourlyWage: 1500
+        };
+
+        // 管理者モード用変数
+        let titleClickCount = 0;
+        let titleClickTimer = null;
+
+        // 初期化
+        async function init() {
+            // Supabase初期化
+            if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                await loadSettings();
+            } else {
+                loadLocalSettings();
+            }
+
+            // 管理者モード: タイトルを5回タップで開く
+            document.getElementById('appTitle').addEventListener('click', handleTitleClick);
+        }
+
+        // タイトルクリックハンドラー（管理者モード起動）
+        function handleTitleClick() {
+            titleClickCount++;
+            
+            // タイマーをクリア
+            if (titleClickTimer) {
+                clearTimeout(titleClickTimer);
+            }
+
+            // 5回クリックで管理者モード起動
+            if (titleClickCount >= 5) {
+                openAdminModal();
+                titleClickCount = 0;
+                return;
+            }
+
+            // 2秒後にカウントをリセット
+            titleClickTimer = setTimeout(() => {
+                titleClickCount = 0;
+            }, 2000);
+        }
+
+        // 管理者モーダルを開く
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.add('active');
+            displayAdminSettings();
+        }
+
+        // 管理者モーダルを閉じる
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        // 管理者設定を表示
+        function displayAdminSettings() {
+            document.getElementById('adminCurryPrice').value = settings.curryPrice;
+            document.getElementById('adminCurryCost').value = settings.curryCost;
+            document.getElementById('adminCostRate').value = settings.costRate;
+            document.getElementById('adminHourlyWage').value = settings.hourlyWage;
+        }
+
+        // 管理者設定の保存
+        async function saveAdminSettings() {
+            settings = {
+                curryPrice: parseFloat(document.getElementById('adminCurryPrice').value) || 0,
+                curryCost: parseFloat(document.getElementById('adminCurryCost').value) || 0,
+                costRate: parseFloat(document.getElementById('adminCostRate').value) || 0,
+                hourlyWage: parseFloat(document.getElementById('adminHourlyWage').value) || 0
+            };
+
+            const messageDiv = document.getElementById('adminSaveMessage');
+
+            if (supabase) {
+                try {
+                    const { error } = await supabase
+                        .from('curry_settings')
+                        .insert([{
+                            curry_price: settings.curryPrice,
+                            curry_cost: settings.curryCost,
+                            cost_rate: settings.costRate,
+                            hourly_wage: settings.hourlyWage
+                        }]);
+
+                    if (error) throw error;
+
+                    messageDiv.innerHTML = '<div class="alert">✓ 設定をSupabaseに保存しました</div>';
+                } catch (error) {
+                    console.error('保存エラー:', error);
+                    saveLocalSettings();
+                    messageDiv.innerHTML = '<div class="alert">✓ 設定をローカルに保存しました</div>';
+                }
+            } else {
+                saveLocalSettings();
+                messageDiv.innerHTML = '<div class="alert">✓ 設定を保存しました（Supabase未接続）</div>';
+            }
+
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+                closeAdminModal();
+            }, 2000);
+
+            calculate();
+        }
+
+        // 設定の読み込み（Supabase）
+        async function loadSettings() {
+            try {
+                const { data, error } = await supabase
+                    .from('curry_settings')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (data) {
+                    settings = {
+                        curryPrice: data.curry_price,
+                        curryCost: data.curry_cost,
+                        costRate: data.cost_rate,
+                        hourlyWage: data.hourly_wage
+                    };
+                }
+            } catch (error) {
+                console.log('設定の読み込みをスキップ:', error);
+                loadLocalSettings();
+            }
+        }
+
+        // ローカルストレージから読み込み
+        function loadLocalSettings() {
+            const saved = localStorage.getItem('currySettings');
+            if (saved) {
+                settings = JSON.parse(saved);
+            }
+        }
+
+        // ローカルストレージに保存
+        function saveLocalSettings() {
+            localStorage.setItem('currySettings', JSON.stringify(settings));
+        }
+
+        // 損益分岐点計算
+        function calculate() {
+            const workHours = parseFloat(document.getElementById('workHours').value) || 0;
+            
+            if (workHours === 0) {
+                document.getElementById('calculationResult').innerHTML = '';
+                document.getElementById('goalSection').style.display = 'none';
+                return;
+            }
+
+            // 計算
+            const laborCost = settings.hourlyWage * workHours;
+            const profitPerCup = settings.curryPrice - settings.curryCost;
+            const breakEvenCups = Math.ceil(laborCost / profitPerCup);
+            const breakEvenSales = breakEvenCups * settings.curryPrice;
+
+            // 結果表示
+            document.getElementById('calculationResult').innerHTML = `
+                <div class="result-card">
+                    <h3>損益分岐点</h3>
+                    <div class="value">${breakEvenCups}<span class="unit">杯</span></div>
+                    <div class="subtitle">売上 ¥${breakEvenSales.toLocaleString()}</div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">人件費</div>
+                        <div class="value">¥${laborCost.toLocaleString()}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">1杯あたり粗利</div>
+                        <div class="value">¥${profitPerCup}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('goalSection').style.display = 'block';
+            updateProgress();
+        }
+
+        // 進捗更新
+        function updateProgress() {
+            const targetSales = parseFloat(document.getElementById('targetSales').value) || 0;
+            const actualSales = parseFloat(document.getElementById('actualSales').value) || 0;
+
+            if (targetSales === 0) return;
+
+            const progress = Math.min((actualSales / targetSales) * 100, 100);
+            const remaining = Math.max(targetSales - actualSales, 0);
+            const remainingCups = Math.ceil(remaining / settings.curryPrice);
+
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = progress + '%';
+            progressFill.setAttribute('data-percent', progress.toFixed(1) + '%');
+            document.getElementById('remainingSales').textContent = '¥' + remaining.toLocaleString();
+            document.getElementById('remainingCups').textContent = remainingCups + '杯';
+        }
+
+        // モーダル外クリックで閉じる
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('adminModal');
+            if (event.target === modal) {
+                closeAdminModal();
+            }
+        });
+
+        // ページ読み込み時に初期化
+        window.onload = init;
+    </script>
+</body>
+</html>
