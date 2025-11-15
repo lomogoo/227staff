@@ -5,399 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Route 227s' Cafe Staff App</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-            background: #ffffff;
-            color: #0a0a0a;
-            min-height: 100vh;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 520px;
-            margin: 0 auto;
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            padding: 60px 24px 40px;
-            text-align: center;
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        .header h1 {
-            font-size: 32px;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-            color: #0a0a0a;
-            user-select: none;
-        }
-
-        .header p {
-            color: #999999;
-            font-size: 14px;
-            font-weight: 400;
-            letter-spacing: 0.3px;
-        }
-
-        .content {
-            flex: 1;
-            padding: 32px 24px;
-        }
-
-        .input-group {
-            margin-bottom: 28px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: #666666;
-            font-weight: 500;
-            font-size: 13px;
-            letter-spacing: 0.3px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            border-radius: 8px;
-            font-size: 16px;
-            color: #0a0a0a;
-            transition: all 0.2s ease;
-            font-weight: 400;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #0a0a0a;
-            box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.05);
-        }
-
-        .input-group input::placeholder {
-            color: #cccccc;
-        }
-
-        .input-group select {
-            width: 100%;
-            padding: 12px 16px;
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            border-radius: 8px;
-            font-size: 16px;
-            color: #0a0a0a;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 400;
-            font-family: inherit;
-        }
-
-        .input-group select:focus {
-            outline: none;
-            border-color: #0a0a0a;
-            box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.05);
-        }
-
-        .result-card {
-            background: #f5f5f5;
-            border: 1px solid #e5e5e5;
-            padding: 28px;
-            border-radius: 12px;
-            margin: 24px 0;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .result-card:hover {
-            background: #fafafa;
-            border-color: #d9d9d9;
-        }
-
-        .result-card h3 {
-            font-size: 12px;
-            margin-bottom: 16px;
-            color: #999999;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-
-        .result-card .value {
-            font-size: 56px;
-            font-weight: 600;
-            margin: 16px 0;
-            letter-spacing: -1px;
-            color: #0a0a0a;
-        }
-
-        .result-card .unit {
-            font-size: 20px;
-            color: #666666;
-            font-weight: 500;
-            margin-left: 4px;
-        }
-
-        .result-card .subtitle {
-            color: #999999;
-            font-size: 14px;
-            margin-top: 12px;
-            font-weight: 400;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .info-card {
-            background: #f5f5f5;
-            border: 1px solid #e5e5e5;
-            padding: 18px;
-            border-radius: 12px;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .info-card:hover {
-            background: #fafafa;
-            border-color: #d9d9d9;
-        }
-
-        .info-card .label {
-            font-size: 11px;
-            color: #999999;
-            margin-bottom: 8px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-
-        .info-card .value {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0a0a0a;
-            letter-spacing: -0.3px;
-        }
-
-        .calculation-section {
-            margin-top: 40px;
-            padding: 24px;
-            background: #f5f5f5;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-        }
-
-        .calculation-section h3 {
-            margin-bottom: 24px;
-            color: #0a0a0a;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
-
-        .reference-info {
-            margin-top: 20px;
-            padding: 16px;
-            background: #fafafa;
-            border: 1px solid #f0f0f0;
-            border-radius: 8px;
-        }
-
-        .reference-info h4 {
-            font-size: 11px;
-            color: #999999;
-            margin-bottom: 12px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-
-        .reference-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .reference-card {
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .reference-card .label {
-            font-size: 9px;
-            color: #999999;
-            margin-bottom: 4px;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-            text-transform: uppercase;
-        }
-
-        .reference-card .value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #0a0a0a;
-        }
-
-        .button {
-            width: 100%;
-            padding: 12px;
-            background: #0a0a0a;
-            border: 1px solid #0a0a0a;
-            color: white;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 16px;
-            letter-spacing: 0.3px;
-        }
-
-        .button:hover {
-            background: #333333;
-            border-color: #333333;
-        }
-
-        .button:active {
-            background: #1a1a1a;
-        }
-
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            background: #f0f0f0;
-            border: 1px solid #e5e5e5;
-            color: #666666;
-        }
-
-        /* 管理者モーダル */
-        .admin-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1000;
-            animation: fadeIn 0.2s;
-        }
-
-        .admin-modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .admin-content {
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            padding: 32px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        .admin-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            color: #0a0a0a;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: #999999;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .close-btn:hover {
-            background: #f5f5f5;
-            color: #0a0a0a;
-        }
-
-        @media (max-width: 600px) {
-            .header {
-                padding: 40px 20px 32px;
-            }
-
-            .content {
-                padding: 24px 20px;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .result-card .value {
-                font-size: 48px;
-            }
-
-            .admin-content {
-                width: 95%;
-                padding: 24px 20px;
-            }
-        }
-
-        /* 数値入力の矢印を非表示 */
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
@@ -407,7 +15,8 @@
         </div>
 
         <div class="content">
-            <div id="calculator">
+            <!-- 計算機セクション -->
+            <div id="calculator" class="section">
                 <div class="input-group">
                     <label for="workHours">勤務時間（時間）</label>
                     <input type="number" id="workHours" placeholder="8" step="0.5" min="0" oninput="calculate()">
@@ -457,6 +66,51 @@
 
                 <div id="calculationResult"></div>
             </div>
+
+            <!-- 売上管理セクション -->
+            <div id="sales" class="section">
+                <div class="sales-container">
+                    <div class="sales-summary">
+                        <h2>本日の売上</h2>
+                        <div class="sales-amount">
+                            ¥<span id="salesAmount">0</span>
+                        </div>
+                        <div class="sales-count">
+                            販売数: <span id="salesCount">0</span>杯
+                        </div>
+                    </div>
+
+                    <div class="counter-section">
+                        <div class="counter-card">
+                            <div class="counter-header">
+                                <h3>カレー</h3>
+                            </div>
+                            <div class="counter-controls">
+                                <button class="counter-btn minus" onclick="decrementCount()">−</button>
+                                <div class="counter-display">
+                                    <div class="count" id="salesCount">0</div>
+                                    <div class="label">杯</div>
+                                </div>
+                                <button class="counter-btn plus" onclick="incrementCount()">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="reset-btn" onclick="resetSales()">本日の売上をリセット</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ボトムナビゲーション -->
+    <div class="bottom-nav">
+        <div class="nav-item" data-section="calculator">
+            <div class="icon">📊</div>
+            <div class="label">計算機</div>
+        </div>
+        <div class="nav-item" data-section="sales">
+            <div class="icon">💰</div>
+            <div class="label">売上管理</div>
         </div>
     </div>
 
@@ -498,294 +152,6 @@
         </div>
     </div>
 
-    <script>
-        // Supabase設定（ここに実際の値を入力してください）
-        const SUPABASE_URL = 'https://hccairtzksnnqdujalgv.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjY2FpcnR6a3NubnFkdWphbGd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyNjI2MTYsImV4cCI6MjA2NDgzODYxNn0.TVDucIs5ClTWuykg_fy4yv65Rg-xbSIPFIfvIYawy_k';
-        
-        let supabase;
-        let settings = {
-            curryPrice: 800,
-            curryCost: 250,
-            costRate: 31.25,
-            hourlyWage: 1500
-        };
-
-        // 管理者モード用変数
-        let titleClickCount = 0;
-        let titleClickTimer = null;
-
-        // 初期化
-        async function init() {
-            // Supabase初期化
-            if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                await loadSettings();
-            } else {
-                loadLocalSettings();
-            }
-
-            // 管理者モード: タイトルを5回タップで開く
-            document.getElementById('appTitle').addEventListener('click', handleTitleClick);
-        }
-
-        // タイトルクリックハンドラー（管理者モード起動）
-        function handleTitleClick() {
-            titleClickCount++;
-            
-            // タイマーをクリア
-            if (titleClickTimer) {
-                clearTimeout(titleClickTimer);
-            }
-
-            // 5回クリックで管理者モード起動
-            if (titleClickCount >= 5) {
-                openAdminModal();
-                titleClickCount = 0;
-                return;
-            }
-
-            // 2秒後にカウントをリセット
-            titleClickTimer = setTimeout(() => {
-                titleClickCount = 0;
-            }, 2000);
-        }
-
-        // 管理者モーダルを開く
-        function openAdminModal() {
-            document.getElementById('adminModal').classList.add('active');
-            displayAdminSettings();
-        }
-
-        // 管理者モーダルを閉じる
-        function closeAdminModal() {
-            document.getElementById('adminModal').classList.remove('active');
-        }
-
-        // 管理者設定を表示
-        function displayAdminSettings() {
-            document.getElementById('adminCurryPrice').value = settings.curryPrice;
-            document.getElementById('adminCurryCost').value = settings.curryCost;
-            document.getElementById('adminCostRate').value = settings.costRate;
-            document.getElementById('adminHourlyWage').value = settings.hourlyWage;
-        }
-
-        // 管理者設定の保存
-        async function saveAdminSettings() {
-            settings = {
-                curryPrice: parseFloat(document.getElementById('adminCurryPrice').value) || 0,
-                curryCost: parseFloat(document.getElementById('adminCurryCost').value) || 0,
-                costRate: parseFloat(document.getElementById('adminCostRate').value) || 0,
-                hourlyWage: parseFloat(document.getElementById('adminHourlyWage').value) || 0
-            };
-
-            const messageDiv = document.getElementById('adminSaveMessage');
-
-            if (supabase) {
-                try {
-                    const { error } = await supabase
-                        .from('curry_settings')
-                        .insert([{
-                            curry_price: settings.curryPrice,
-                            curry_cost: settings.curryCost,
-                            cost_rate: settings.costRate,
-                            hourly_wage: settings.hourlyWage
-                        }]);
-
-                    if (error) throw error;
-
-                    messageDiv.innerHTML = '<div class="alert">✓ 設定をSupabaseに保存しました</div>';
-                } catch (error) {
-                    console.error('保存エラー:', error);
-                    saveLocalSettings();
-                    messageDiv.innerHTML = '<div class="alert">✓ 設定をローカルに保存しました</div>';
-                }
-            } else {
-                saveLocalSettings();
-                messageDiv.innerHTML = '<div class="alert">✓ 設定を保存しました（Supabase未接続）</div>';
-            }
-
-            setTimeout(() => {
-                messageDiv.innerHTML = '';
-                closeAdminModal();
-            }, 2000);
-
-            calculate();
-        }
-
-        // 設定の読み込み（Supabase）
-        async function loadSettings() {
-            try {
-                const { data, error } = await supabase
-                    .from('curry_settings')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .single();
-
-                if (data) {
-                    settings = {
-                        curryPrice: data.curry_price,
-                        curryCost: data.curry_cost,
-                        costRate: data.cost_rate,
-                        hourlyWage: data.hourly_wage
-                    };
-                }
-            } catch (error) {
-                console.log('設定の読み込みをスキップ:', error);
-                loadLocalSettings();
-            }
-        }
-
-        // ローカルストレージから読み込み
-        function loadLocalSettings() {
-            const saved = localStorage.getItem('currySettings');
-            if (saved) {
-                settings = JSON.parse(saved);
-            }
-        }
-
-        // ローカルストレージに保存
-        function saveLocalSettings() {
-            localStorage.setItem('currySettings', JSON.stringify(settings));
-        }
-
-        // 販売場所の小分類を更新
-        function updateLocationSubcategory() {
-            const category = document.getElementById('locationCategory').value;
-            const subcategorySelect = document.getElementById('locationSubcategory');
-
-            let options = [];
-            if (category === 'event') {
-                options = [
-                    { value: '', text: '選択してください' },
-                    { value: 'festival', text: 'フェスティバル' },
-                    { value: 'market', text: 'マーケット' },
-                    { value: 'exhibition', text: '展示会' },
-                    { value: 'conference', text: 'カンファレンス' }
-                ];
-            } else if (category === 'spot') {
-                options = [
-                    { value: '', text: '選択してください' },
-                    { value: 'station', text: '駅前' },
-                    { value: 'park', text: '公園' },
-                    { value: 'shopping', text: '商業施設' },
-                    { value: 'street', text: '繁華街' }
-                ];
-            }
-
-            subcategorySelect.innerHTML = options
-                .map(opt => `<option value="${opt.value}">${opt.text}</option>`)
-                .join('');
-        }
-
-        // 損益分岐点計算
-        function calculate() {
-            const workHours = parseFloat(document.getElementById('workHours').value) || 0;
-            const targetSalesAmount = parseFloat(document.getElementById('targetSalesAmount').value) || 0;
-
-            if (workHours === 0) {
-                document.getElementById('calculationResult').innerHTML = '';
-                return;
-            }
-
-            // 基本計算
-            const laborCost = settings.hourlyWage * workHours;
-            const profitPerCup = settings.curryPrice - settings.curryCost;
-            const breakEvenCups = Math.ceil(laborCost / profitPerCup);
-            const breakEvenSales = breakEvenCups * settings.curryPrice;
-
-            // 売上目標がある場合の計算
-            let targetCupsHTML = '';
-            let targetSalesGrossProfit = 0;
-            if (targetSalesAmount > 0) {
-                targetSalesGrossProfit = targetSalesAmount * (1 - settings.costRate / 100);
-                const requiredGrossProfit = laborCost + targetSalesGrossProfit;
-                const targetCups = Math.ceil(requiredGrossProfit / profitPerCup);
-
-                targetCupsHTML = `
-                    <div class="result-card" style="margin-top: 16px;">
-                        <h3>目標売上達成に必要な杯数</h3>
-                        <div class="value">${targetCups}<span class="unit">杯</span></div>
-                        <div class="subtitle">売上 ¥${targetSalesAmount.toLocaleString()}</div>
-                    </div>
-                `;
-            }
-
-            // 参考情報セクション
-            let referenceHTML = '';
-            if (targetSalesAmount > 0) {
-                referenceHTML = `
-                    <div class="reference-info">
-                        <h4>参考情報</h4>
-                        <div class="reference-grid">
-                            <div class="reference-card">
-                                <div class="label">人件費</div>
-                                <div class="value">¥${laborCost.toLocaleString()}</div>
-                            </div>
-                            <div class="reference-card">
-                                <div class="label">1杯あたり粗利</div>
-                                <div class="value">¥${profitPerCup}</div>
-                            </div>
-                            <div class="reference-card">
-                                <div class="label">目標売上での粗利</div>
-                                <div class="value">¥${targetSalesGrossProfit.toLocaleString()}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                referenceHTML = `
-                    <div class="reference-info">
-                        <h4>参考情報</h4>
-                        <div class="reference-grid">
-                            <div class="reference-card">
-                                <div class="label">人件費</div>
-                                <div class="value">¥${laborCost.toLocaleString()}</div>
-                            </div>
-                            <div class="reference-card">
-                                <div class="label">1杯あたり粗利</div>
-                                <div class="value">¥${profitPerCup}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // 結果表示
-            document.getElementById('calculationResult').innerHTML = `
-                <div class="result-card">
-                    <h3>損益分岐点（赤字回避）</h3>
-                    <div class="value">${breakEvenCups}<span class="unit">杯</span></div>
-                    <div class="subtitle">売上 ¥${breakEvenSales.toLocaleString()}</div>
-                    <div class="info-grid" style="margin-top: 16px;">
-                        <div class="info-card">
-                            <div class="label">人件費</div>
-                            <div class="value">¥${laborCost.toLocaleString()}</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="label">粗利</div>
-                            <div class="value">¥${(breakEvenCups * profitPerCup).toLocaleString()}</div>
-                        </div>
-                    </div>
-                </div>
-
-                ${targetCupsHTML}
-
-                ${referenceHTML}
-            `;
-        }
-
-        // モーダル外クリックで閉じる
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('adminModal');
-            if (event.target === modal) {
-                closeAdminModal();
-            }
-        });
-
-        // ページ読み込み時に初期化
-        window.onload = init;
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
