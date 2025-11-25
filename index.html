@@ -27,9 +27,12 @@
                     <input type="number" id="targetSalesAmount" placeholder="50000" min="0" oninput="calculate()">
                 </div>
 
-                <!-- オプション入力セクション -->
-                <div class="options-section" style="border-top: 1px solid #e5e5e5; padding-top: 24px; margin-top: 24px;">
-                    <h4 style="font-size: 13px; color: #999999; margin-bottom: 16px; font-weight: 500; text-transform: uppercase;">追加情報（オプション）</h4>
+                <!-- 計算結果（常に表示） -->
+                <div id="calculationResult"></div>
+
+                <!-- オプション入力セクション（一番下に配置） -->
+                <div class="options-section">
+                    <h4 class="options-title">追加情報（オプション）</h4>
 
                     <div class="input-group">
                         <label for="weather">天気</label>
@@ -63,20 +66,28 @@
                         </select>
                     </div>
                 </div>
-
-                <div id="calculationResult"></div>
             </div>
 
             <!-- 売上管理セクション -->
             <div id="sales" class="section">
                 <div class="sales-container">
+                    <!-- 損益分岐点までの表示 -->
+                    <div class="breakeven-status" id="breakevenStatus">
+                        <div class="breakeven-label">損益分岐点まで</div>
+                        <div class="breakeven-value">
+                            <span id="remainingCups">--</span>
+                            <span class="breakeven-unit">杯</span>
+                        </div>
+                        <div class="breakeven-hint" id="breakevenHint">計算機で勤務時間を入力してください</div>
+                    </div>
+
                     <div class="sales-summary">
                         <h2>本日の売上</h2>
                         <div class="sales-amount">
                             ¥<span id="salesAmount">0</span>
                         </div>
                         <div class="sales-count">
-                            販売数: <span id="salesCount">0</span>杯
+                            販売数: <span id="totalSalesCount">0</span>杯
                         </div>
                     </div>
 
@@ -88,11 +99,19 @@
                             <div class="counter-controls">
                                 <button class="counter-btn minus" onclick="decrementCount()">−</button>
                                 <div class="counter-display">
-                                    <div class="count" id="salesCount">0</div>
+                                    <div class="count" id="counterDisplay">0</div>
                                     <div class="label">杯</div>
                                 </div>
                                 <button class="counter-btn plus" onclick="incrementCount()">+</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- 履歴表示エリア -->
+                    <div class="history-section">
+                        <h4 class="history-title">販売履歴</h4>
+                        <div class="history-list" id="historyList">
+                            <div class="history-empty">履歴はまだありません</div>
                         </div>
                     </div>
 
@@ -105,11 +124,29 @@
     <!-- ボトムナビゲーション -->
     <div class="bottom-nav">
         <div class="nav-item" data-section="calculator">
-            <div class="icon">📊</div>
+            <div class="icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/>
+                    <line x1="8" y1="10" x2="8" y2="10.01"/>
+                    <line x1="12" y1="10" x2="12" y2="10.01"/>
+                    <line x1="16" y1="10" x2="16" y2="10.01"/>
+                    <line x1="8" y1="14" x2="8" y2="14.01"/>
+                    <line x1="12" y1="14" x2="12" y2="14.01"/>
+                    <line x1="16" y1="14" x2="16" y2="14.01"/>
+                    <line x1="8" y1="18" x2="8" y2="18.01"/>
+                    <line x1="12" y1="18" x2="16" y2="18"/>
+                </svg>
+            </div>
             <div class="label">計算機</div>
         </div>
         <div class="nav-item" data-section="sales">
-            <div class="icon">💰</div>
+            <div class="icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+            </div>
             <div class="label">売上管理</div>
         </div>
     </div>
